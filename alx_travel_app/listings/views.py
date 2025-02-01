@@ -20,3 +20,8 @@ class BookingViewSet(ModelViewSet):
     '''
     queryset = Booking.objects.all()
     serializer_class = BookingSerializer
+
+    def perform_create(self, serializer):
+        booking = serializer.save(user=self.request.user)
+        # Trigger async email task
+        send_booking_confirmation.delay(booking.id)
